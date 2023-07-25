@@ -7,8 +7,9 @@ export default function Game() {
     const { dimensions } = useSelector((state: RootState) => state.lg)
   return (
     <div>
-        <p>Width: {dimensions.width}</p>
-        <p>Height: {dimensions.height}</p>
+      <h1>Life Game</h1>
+      <p>Width: {dimensions.width}</p>
+      <p>Height: {dimensions.height}</p>
     </div>
   )
 }
