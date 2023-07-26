@@ -1,47 +1,69 @@
 'use client';
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { RootState } from '@/utils/redux/store'
 import { useDispatch, useSelector } from 'react-redux'
-import { aliveNeighborsCounter } from '@/utils';
+import { gameTurn, hasMatrixChanged, randomMatrix } from '@/utils';
+import { Alive } from '@/types';
 export default function Menu() {
   const { matrix, dimensions } = useSelector((state: RootState) => state.lg)
   const dispatch = useDispatch()
+  const [isPlaying, setIsPlaying] = useState(false)
+  const matrixRef = useRef<Alive[][]>([]);
+  
+
+  useEffect(() => {
+    matrixRef.current = matrix; // Asignamos la matriz inicial a matrixRef.current al montar el componente
+  }, [matrix]);
 
   const startGame = () => {
-    console.log(matrix)
-    const newMatrix = matrix.map((row) => [...row]);
-    console.log(newMatrix)
-    for (let i = 0; i < dimensions.height; i++) {
-      for (let j = 0; j < dimensions.width; j++) {
-        const aliveNeighbors = aliveNeighborsCounter(matrix, i, j);
-        if (matrix[i][j] === 1) {
-          // Alive Cell
-          if (aliveNeighbors < 2 || aliveNeighbors > 3) {
-            // Die
-            newMatrix[i][j] = 0
-          }
-        } else {
-          // Dead Cell
-          if (aliveNeighbors === 3) {
-            // Regenerate cell
-            newMatrix[i][j] = 1
-          }
-        }
+    setIsPlaying(true);
+    const intervalId = setInterval(() => {
+      const newMatrix = gameTurn(matrixRef.current, dimensions)
+      dispatch({ type: "matrix/draw", payload: newMatrix })
+      
+      if (!hasMatrixChanged(matrixRef.current, newMatrix)) {
+        clearInterval(intervalId)
+        setIsPlaying(false)
       }
-    }
+    }, 100)
+  }
+
+  function generateRandom () {
+    const newMatrix = randomMatrix(dimensions)
     dispatch({ type: "matrix/draw", payload: newMatrix })
   }
 
   return (
     <div className='flex flex-col gap-2 m-2'>
       <h1>Life Game</h1>
-      <p>Width: {dimensions.width}</p>
-      <p>Height: {dimensions.height}</p>
-      <button className='p-3 bg-gray-700 rounded-md active:scale-95' onClick={startGame}>
+      <div className='flex gap-2'>
+        <p>Width:</p>
+        <input className='bg-transparent w-6' value={dimensions.width} />
+      </div>
+      <div className='flex gap-2'>
+        <p>Height:</p>
+        <input className='bg-transparent w-6' value={dimensions.height} />
+      </div>
+      <div className='flex gap-2'>
+        <p>Randomness: </p>
+        <input className='bg-transparent w-6' value={70} />
+      </div>
+      <button 
+        className='p-3 bg-gray-700 rounded-md active:scale-95 disabled:bg-gray-950 disabled:text-gray-600' 
+        onClick={startGame} 
+        disabled={isPlaying}>
         Comenzar
       </button>
-      <button className='p-3 bg-gray-900 rounded-md active:scale-95' onClick={() => dispatch({ type: "matrix/reset"})}>
+      <button 
+        className='p-3 bg-gray-900 rounded-md active:scale-95' 
+        onClick={() => dispatch({ type: "matrix/reset"})}>
         Borrar
+      </button>
+      <button 
+        className='p-3 bg-gray-700 rounded-md active:scale-95 disabled:bg-gray-950 disabled:text-gray-600' 
+        onClick={generateRandom} 
+        disabled={isPlaying}>
+        Random
       </button>
     </div>
   )
