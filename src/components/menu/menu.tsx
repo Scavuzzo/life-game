@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { RootState } from '@/utils/redux/store'
 import { useDispatch, useSelector } from 'react-redux'
 import { gameTurn, hasMatrixChanged, randomMatrix } from '@/utils';
@@ -25,7 +25,7 @@ export default function Menu() {
         clearInterval(intervalId)
         setIsPlaying(false)
       }
-    }, 100)
+    }, 120)
   }
 
   function generateRandom () {
@@ -36,17 +36,29 @@ export default function Menu() {
   return (
     <div className='flex flex-col gap-2 m-2'>
       <h1>Life Game</h1>
-      <div className='flex gap-2'>
-        <p>Width:</p>
-        <input className='bg-transparent w-6' value={dimensions.width} />
-      </div>
-      <div className='flex gap-2'>
-        <p>Height:</p>
-        <input className='bg-transparent w-6' value={dimensions.height} />
-      </div>
-      <div className='flex gap-2'>
-        <p>Randomness: </p>
-        <input className='bg-transparent w-6' value={70} />
+      <div>
+        <div className='flex gap-2'>
+          <p>Width (squares):</p>
+          <input className='bg-transparent w-6' disabled={isPlaying} value={dimensions.width} onChange={(e: ChangeEvent<HTMLInputElement>) => dispatch({type: 'dimensions/set', payload: {width: e.target.value, height: dimensions.height}})}/>
+        </div>
+        <div className='flex gap-2'>
+          <p>Height (squares):</p>
+          <input className='bg-transparent w-6' disabled={isPlaying} value={dimensions.height} />
+        </div>
+        <div className='flex gap-2'>
+          <p>Randomness: </p>
+          <input className='bg-transparent w-6' disabled={isPlaying} value={70} />
+        </div>
+        <div className='flex gap-2'>
+          <p>Velocity (ms): </p>
+          <input className='bg-transparent w-8' disabled={isPlaying} value={100} />
+        </div>
+        <button 
+          className='p-3 bg-gray-700 rounded-md active:scale-95 disabled:bg-gray-950 disabled:text-gray-600' 
+          onClick={startGame} 
+          disabled={isPlaying}>
+          Guardar
+        </button>
       </div>
       <button 
         className='p-3 bg-gray-700 rounded-md active:scale-95 disabled:bg-gray-950 disabled:text-gray-600' 

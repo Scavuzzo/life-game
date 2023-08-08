@@ -11,7 +11,7 @@ const Cell = ({ alive, dimensions, coordinates }: Cell) => {
     return (
         <div 
             style={{ width, height }} 
-            className={`w-6 h-6 border cursor-pointer transition-colors duration-100 ${alive ? 'bg-black' : 'bg-white'}`} 
+            className={`w-6 h-6 border cursor-pointer transition-colors duration-75 ${alive ? 'bg-black' : 'bg-white'}`} 
             onClick={() => dispatch({ type: "cell/set", payload: coordinates})} 
         /> 
     )
@@ -22,9 +22,10 @@ export default function Board() {
     const { matrix } = useSelector((state: RootState) => state.lg)
     const dispatch = useDispatch()
     const boardRef = useRef<HTMLDivElement>(null)
-
+    const cellDimensions = {width: boardRef.current?.clientWidth / 50, height: boardRef.current?.clientHeight / 50}
+    
     useEffect(() => {
-        dispatch({ type: "dimensions/set", payload: {width: 15, height: 15}})
+        dispatch({ type: "dimensions/set", payload: {width: 50, height: 50}})
         setLoading(false)
         return () => {
         }
@@ -46,7 +47,7 @@ export default function Board() {
                         <Cell 
                             key={`row-${i}-cell${j}`}  
                             alive={alive} 
-                            dimensions={{width: 20, height: 20}} 
+                            dimensions={cellDimensions} 
                             coordinates={{x: j, y: i}} 
                         />
                     ))}
